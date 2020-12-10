@@ -1,0 +1,8 @@
+{
+    "symbols": ["SPY", "TLT", "XOM", "QQQ", "ZM", "BTC-USD", "ETH-USD"],
+    "max_lookback_years": 5,
+    "annual_risk_free_rate": 0.008,
+    "max_position_size": 0.99,
+    "capital": 1000000
+}
+
