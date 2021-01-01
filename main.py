@@ -5,10 +5,13 @@ import pandas as pd
 import sys
 import json
 import yfinance
+from joblib import Memory
 from pandas_datareader import data as pd_data
 from typing import Dict
 from pypfopt import black_litterman, risk_models
 from pypfopt import BlackLittermanModel, plotting
+from pypfopt import EfficientFrontier, objective_functions
+memory = Memory('./cachedir', verbose=0)
 
 def load_config(path):
     "load required config file"
@@ -16,8 +19,9 @@ def load_config(path):
         data = json.load(config_file)
     return data
 
-def load_prices(symbols, max_lookback_years, data_source):
-    "load prices from web or from local file"
+@memory.cache
+def load_prices(symbols, max_lookback_years, data_source, curr_date):
+    "begin loading prices"
     if data_source == 'yahoo':
         stock_symbols, crypto_symbols = [], []
         start_date = (datetime.datetime.today()
@@ -52,20 +56,27 @@ def load_prices(symbols, max_lookback_years, data_source):
     price_data = price_data.sort_index()
     return price_data
 
-def load_mkt_caps(symbols):
-    print('querying market cap data from yahoo')
+@memory.cache
+def load_mkt_caps(symbols, curr_date):
+    print('loading market cap data')
     mcaps = pd_data.get_quote_yahoo(symbols)['marketCap']
     missing_mcap_symbols = mcaps[mcaps.isnull()].index
-    missing_mcaps = pd_data.get_quote_yahoo(missing_mcap_symbols)['NetAssets']
-    import pdb
-    pdb.set_trace()
+    for symbol in missing_mcap_symbols:
+        print('attempting to find market cap info for', symbol)
+        data = yfinance.Ticker(symbol)
+        if data.info['quoteType'] == 'ETF' or data.info['quoteType'] == 'MUTUALFUND': 
+            mcap = data.info['totalAssets']
+            print('adding market cap info for', symbol)
+            mcaps.loc[symbol] = mcap
+        else:
+            print('Failed to find market cap for', symbol)
+            sys.exit(-1)
     return mcaps
 
-def load_market_prices(prices, max_lookback_years):
-    if 'SPY' not in prices.columns:
-        return  load_prices(['SPY'], max_lookback_years, OPTIONS.price_data)
-    else:
-        return prices['SPY'].copy()
+@memory.cache
+def load_market_prices(prices, curr_date):
+    mkt_prices = yfinance.download("SPY", period="max")["Adj Close"]
+    return mkt_prices
     
 def calc_omega(config, symbols):
     variances = []
@@ -77,9 +88,11 @@ def calc_omega(config, symbols):
     omega = np.diag(variances)
     return omega
 
-def plot_results(rets_df, covar_bl):
+def plot_black_litterman_results(ret_bl, covar_bl, market_prior, mu):
+    rets_df = pd.DataFrame([market_prior, ret_bl, pd.Series(mu)],
+                           index=["Prior", "Posterior", "Views"]).T
     rets_df.plot.bar(figsize=(12,8));
-    plotting.plot_covariance(covar_bl);
+    plotting.plot_covariance(covar_bl, plot_correlation=True);
 
 def load_mean_views(views, symbols):
     mu = {}
@@ -87,33 +100,34 @@ def load_mean_views(views, symbols):
         mu[symbol] = views[symbol][1]
     return mu
 
-def main():
+def load_data():
     config = load_config(OPTIONS.config_path)
     symbols = sorted(config['views'].keys())
     max_lookback_years = config['max_lookback_years']
+    prices = load_prices(symbols, max_lookback_years, OPTIONS.price_data, datetime.date.today())
+    market_prices = load_market_prices(prices, datetime.date.today())
+    mkt_caps = load_mkt_caps(symbols, datetime.date.today())
+    return prices, market_prices, mkt_caps, symbols, config
 
-    prices = load_prices(symbols, max_lookback_years, OPTIONS.price_data)
-    market_prices = load_market_prices(prices, max_lookback_years)
-    mkt_caps = load_mkt_caps(symbols)
-    #covar = risk_models.CovarianceShrinkage(prices).ledoit_wolf()
-    #covar = risk_models.risk_matrix(prices, method='exp_cov')
-    covar = risk_models.risk_matrix(prices, method='semicovariance')
+def calc_black_litterman(market_prices, mkt_caps, covar, config, symbols):
     delta = black_litterman.market_implied_risk_aversion(market_prices)
     market_prior = black_litterman.market_implied_prior_returns(mkt_caps, delta, covar)
     mu = load_mean_views(config['views'], symbols)
     omega = calc_omega(config, symbols)
-    import pdb
-    pdb.set_trace()
     bl = BlackLittermanModel(covar, pi="market", market_caps=mkt_caps, risk_aversion=delta,
                              absolute_views=mu, omega=omega)
-    ret_bl = bl.bl_returns()
-    rets_df = pd.DataFrame([market_prior, ret_bl, pd.Series(mu)],
-                           index=["Prior", "Posterior", "Views"]).T
+    rets_bl = bl.bl_returns()
     covar_bl = bl.bl_cov()
+    plot_black_litterman_results(rets_bl, covar_bl, market_prior, mu)
+    return rets_bl, covar_bl
 
-    plot_results(rets_df, covar_bl)
-    import pdb
-    pdb.set_trace()
+def main():
+    prices, market_prices, mkt_caps, symbols, config = load_data()
+
+    covar = risk_models.CovarianceShrinkage(prices).ledoit_wolf()
+    #covar = risk_models.risk_matrix(prices, method='exp_cov')
+    #covar = risk_models.risk_matrix(prices, method='semicovariance')
+    rets_bl, covar_bl = calc_black_litterman(market_prices, mkt_caps, covar, config, symbols)
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
