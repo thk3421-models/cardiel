@@ -5,12 +5,14 @@ import pandas as pd
 import sys
 import json
 import yfinance
+from cvxopt.solvers import qp
+from cvxopt import matrix
 from joblib import Memory
 from pandas_datareader import data as pd_data
-from typing import Dict
 from pypfopt import black_litterman, risk_models
 from pypfopt import BlackLittermanModel, plotting
 from pypfopt import EfficientFrontier, objective_functions
+from typing import Dict
 memory = Memory('./cachedir', verbose=0)
 
 def load_config(path):
@@ -121,13 +123,61 @@ def calc_black_litterman(market_prices, mkt_caps, covar, config, symbols):
     plot_black_litterman_results(rets_bl, covar_bl, market_prior, mu)
     return rets_bl, covar_bl
 
+def kelly_optimize(M_df, C_df, config):
+    "objective function to maximize is: g(F) = r + F^T(M-R) - F^TCF/2"
+    r = config['annual_risk_free_rate']
+    M = M_df.to_numpy()
+    C = C_df.to_numpy()
+
+    n = M.shape[0]
+    A = matrix(1.0, (1, n))
+    b = matrix(1.0)
+    G = matrix(0.0, (n, n))
+    G[::n+1] = -1.0
+    h = matrix(0.0, (n, 1))
+    try:
+        max_pos_size = float(config['max_position_size'])
+    except KeyError:
+        max_pos_size = None
+    try:
+        min_pos_size = float(config['min_position_size'])
+    except KeyError:
+        min_pos_size = None
+    if min_pos_size is not None:
+        h = matrix(min_pos_size, (n, 1))
+
+    if max_pos_size is not None:
+       h_max = matrix(max_pos_size, (n,1))
+       G_max = matrix(0.0, (n, n))
+       G_max[::n+1] = 1.0
+       G = matrix(np.vstack((G, G_max)))
+       h = matrix(np.vstack((h, h_max)))
+
+    S = matrix((1.0 / ((1 + r) ** 2)) * C)
+    q = matrix((1.0 / (1 + r)) * (M - r))
+    sol = qp(S, -q, G, h, A, b)
+    kelly = np.array([sol['x'][i] for i in range(n)])
+    kelly = pd.DataFrame(kelly, index=C_df.columns, columns=['Weights'])
+    return kelly.round(3)
+
+def calc_optimal_weights(rets_bl, covar_bl, config):
+    import pdb
+    pdb.set_trace()
+
+
 def main():
     prices, market_prices, mkt_caps, symbols, config = load_data()
 
-    covar = risk_models.CovarianceShrinkage(prices).ledoit_wolf()
-    #covar = risk_models.risk_matrix(prices, method='exp_cov')
+    #covar = risk_models.risk_matrix(prices, method='exp_cov', span=180)
     #covar = risk_models.risk_matrix(prices, method='semicovariance')
+    #covar = risk_models.CovarianceShrinkage(prices).ledoit_wolf()
+    covar = risk_models.risk_matrix(prices, method='oracle_approximating')
     rets_bl, covar_bl = calc_black_litterman(market_prices, mkt_caps, covar, config, symbols)
+
+    kelly_weights = kelly_optimize(rets_bl, covar_bl, config) 
+    import pdb
+    pdb.set_trace()
+    weights = calc_optimal_weights(rets_bl, covar_bl, config)
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
