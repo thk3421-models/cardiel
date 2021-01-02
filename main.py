@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
@@ -11,7 +12,7 @@ from joblib import Memory
 from pandas_datareader import data as pd_data
 from pypfopt import black_litterman, risk_models
 from pypfopt import BlackLittermanModel, plotting
-from pypfopt import EfficientFrontier, objective_functions
+from pypfopt import EfficientFrontier, objective_functions, CLA
 from typing import Dict
 memory = Memory('./cachedir', verbose=0)
 
@@ -120,11 +121,12 @@ def calc_black_litterman(market_prices, mkt_caps, covar, config, symbols):
                              absolute_views=mu, omega=omega)
     rets_bl = bl.bl_returns()
     covar_bl = bl.bl_cov()
-    plot_black_litterman_results(rets_bl, covar_bl, market_prior, mu)
+    plot_black_litterman_results(rets_bl, covar_bl, market_prior, mu);
     return rets_bl, covar_bl
 
 def kelly_optimize(M_df, C_df, config):
     "objective function to maximize is: g(F) = r + F^T(M-R) - F^TCF/2"
+    print('Begin Kelly Criterion optimization')
     r = config['annual_risk_free_rate']
     M = M_df.to_numpy()
     C = C_df.to_numpy()
@@ -158,12 +160,76 @@ def kelly_optimize(M_df, C_df, config):
     sol = qp(S, -q, G, h, A, b)
     kelly = np.array([sol['x'][i] for i in range(n)])
     kelly = pd.DataFrame(kelly, index=C_df.columns, columns=['Weights'])
-    return kelly.round(3)
+    kelly = kelly.round(3) 
+    kelly.columns=['Kelly']
+    return kelly
 
-def calc_optimal_weights(rets_bl, covar_bl, config):
-    import pdb
-    pdb.set_trace()
+def max_quad_utility_weights(rets_bl, covar_bl, config):
+    print('Begin max quadratic utility optimization')
+    returns, sigmas, weights, deltas = [],[],[],[]
+    for delta in np.arange(1,25,1):
+        ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
+                (config['min_position_size'] ,config['max_position_size']))
+        ef.max_quadratic_utility(delta)
+        ret, sigma, __ = ef.portfolio_performance()
+        weights_vec = ef.clean_weights()
+        returns.append(ret)
+        sigmas.append(sigma)
+        deltas.append(delta)
+        weights.append(weights_vec)
+    fig, ax = plt.subplots()
+    ax.plot(sigmas, returns)
+    for i, delta in enumerate(deltas):
+        ax.annotate(str(delta), (sigmas[i], returns[i]))
+    plt.xlabel('Volatility (%) ')
+    plt.ylabel('Returns (%)')
+    plt.title('Efficient Frontier for Max Quadratic Utility Optimization')
+    plt.legend('CHOOSE THE POINT ON THE EFFICIENT FRONTIER AND ENTER IT INTO THE TERMINAL')
+    plt.show()
+    opt_delta = float(input('Enter the desired point on the efficient frontier: ') )
+    ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
+            (config['min_position_size'] ,config['max_position_size']))
+    ef.max_quadratic_utility(opt_delta)
+    opt_weights = ef.clean_weights()
+    opt_weights = pd.DataFrame.from_dict(opt_weights, orient='index')
+    opt_weights.columns=['Max Quad Util']
+    return opt_weights, ef  
 
+def min_volatility_weights(rets_bl, covar_bl, config):
+    ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
+            (config['min_position_size'] ,config['max_position_size']))
+    ef.min_volatility()
+    weights = ef.clean_weights()
+    weights = pd.DataFrame.from_dict(weights, orient='index')
+    weights.columns=['Min Vol']
+    return weights, ef
+
+def max_sharpe_weights(rets_bl, covar_bl, config):
+    ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
+            (config['min_position_size'] ,config['max_position_size']))
+    ef.max_sharpe()
+    weights = ef.clean_weights()
+    weights = pd.DataFrame.from_dict(weights, orient='index')
+    weights.columns=['Max Sharpe']
+    return weights, ef
+
+def cla_max_sharpe_weights(rets_bl, covar_bl, config):
+    cla = CLA(rets_bl, covar_bl, weight_bounds= \
+            (config['min_position_size'] ,config['max_position_size']))
+    cla.max_sharpe()
+    weights = cla.clean_weights()
+    weights = pd.DataFrame.from_dict(weights, orient='index')
+    weights.columns=['CLA Max Sharpe']
+    return weights, cla
+
+def cla_min_vol_weights(rets_bl, covar_bl, config):
+    cla = CLA(rets_bl, covar_bl, weight_bounds= \
+            (config['min_position_size'] ,config['max_position_size']))
+    cla.min_volatility()
+    weights = cla.clean_weights()
+    weights = pd.DataFrame.from_dict(weights, orient='index')
+    weights.columns=['CLA Min Vol']
+    return weights, cla
 
 def main():
     prices, market_prices, mkt_caps, symbols, config = load_data()
@@ -174,10 +240,47 @@ def main():
     covar = risk_models.risk_matrix(prices, method='oracle_approximating')
     rets_bl, covar_bl = calc_black_litterman(market_prices, mkt_caps, covar, config, symbols)
 
-    kelly_weights = kelly_optimize(rets_bl, covar_bl, config) 
-    import pdb
-    pdb.set_trace()
-    weights = calc_optimal_weights(rets_bl, covar_bl, config)
+    kelly_w = kelly_optimize(rets_bl, covar_bl, config) 
+    max_quad_util_w, max_quad_util_ef = max_quad_utility_weights(rets_bl, covar_bl, config)
+    min_vol_w, min_vol_ef = min_volatility_weights(rets_bl, covar_bl, config)
+    max_sharpe_w, max_sharpe_ef = max_sharpe_weights(rets_bl, covar_bl, config)
+    cla_max_sharpe_w, cla_max_sharpe_cla = cla_max_sharpe_weights(rets_bl, covar_bl, config)
+    cla_min_vol_w, cla_min_vol_cla = cla_min_vol_weights(rets_bl, covar_bl, config)
+
+    #ax = plotting.plot_efficient_frontier(cla_max_sharpe_cla, showfig=False)
+    #plt.title('Efficient Frontier via CLA Max Sharpe Optimization')
+    #plt.show()
+    #ax = plotting.plot_efficient_frontier(cla_min_vol_cla, showfig=False)
+    #plt.title('Efficient Frontier via CLA Min Volatility Optimization')
+    #plt.show()
+
+    weights_df = pd.merge(kelly_w, max_quad_util_w, left_index=True, right_index=True)
+    weights_df = pd.merge(weights_df, max_sharpe_w, left_index=True, right_index=True) 
+    weights_df = pd.merge(weights_df, cla_max_sharpe_w, left_index=True, right_index=True) 
+    weights_df = pd.merge(weights_df, min_vol_w, left_index=True, right_index=True) 
+    weights_df = pd.merge(weights_df, cla_min_vol_w, left_index=True, right_index=True) 
+    weights_df.to_csv('portfolio_weight_results.csv')
+    
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.25, left=0.25)
+    heatmap = ax.pcolor(weights_df, edgecolors='w', linewidths=1)
+    cbar = plt.colorbar(heatmap)
+    ax.set_xticks(np.arange(weights_df.shape[1]) + 0.5, minor=False)
+    ax.set_yticks(np.arange(weights_df.shape[0]) + 0.5, minor=False)
+    ax.set_xticklabels(weights_df.columns) #, rotation=45)
+    ax.set_yticklabels(weights_df.index)
+
+    for y, idx in enumerate(weights_df.index):
+        for x, col in enumerate(weights_df.columns):
+            plt.text(x + 0.5, y + 0.5, '%.2f' % weights_df.loc[idx, col], \
+                     horizontalalignment='center', verticalalignment='center',)
+
+    plt.gca().invert_yaxis()
+    plt.xlabel('Optimization Method')
+    plt.ylabel('Security')
+    plt.title('Portfolio Weighting (%)')
+    plt.show()
+
 
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()

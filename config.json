@@ -1,7 +1,7 @@
 {
     "max_lookback_years": 5,
     "annual_risk_free_rate": 0.008,
-    "max_position_size": 0.2,
+    "max_position_size": 0.25,
     "min_position_size": 0.0,
     "capital": 1000000,
     "views": {
