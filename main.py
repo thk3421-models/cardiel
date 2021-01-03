@@ -14,7 +14,6 @@ from pandas_datareader import data as pd_data
 from pypfopt import black_litterman, risk_models
 from pypfopt import BlackLittermanModel, plotting
 from pypfopt import EfficientFrontier, objective_functions, CLA
-from typing import Dict
 memory = Memory('./cachedir', verbose=0)
 
 def load_config(path):
