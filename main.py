@@ -24,7 +24,7 @@ def load_config(path):
     return data
 
 @memory.cache
-def load_prices(symbols, max_lookback_years, data_source, curr_date):
+def load_prices(symbols, max_lookback_years, data_source, curr_date, config):
     "begin loading prices"
     if data_source == 'yahoo':
         stock_symbols, crypto_symbols = [], []
@@ -52,10 +52,10 @@ def load_prices(symbols, max_lookback_years, data_source, curr_date):
     elif data_source is not None:
         try:
             #Expects a CSV with Date, Symbol header for the prices, i.e. Date, AAPL, GOOGL
-            price_data = pd.read_csv(OPTIONS.price_data, parse_dates=['Date'])
+            price_data = pd.read_csv(config['price_data'], parse_dates=['Date'])
             price_data.set_index(['Date'], inplace=True)
         except (OSError, KeyError):
-            print('Error loading local price data from:', OPTIONS.price_data)
+            print('Error loading local price data from:', config['price_data'])
             sys.exit(-1)
     price_data = price_data.sort_index()
     return price_data
@@ -111,7 +111,7 @@ def load_data():
     config = load_config(OPTIONS.config_path)
     symbols = sorted(config['views'].keys())
     max_lookback_years = config['max_lookback_years']
-    prices = load_prices(symbols, max_lookback_years, OPTIONS.price_data, datetime.date.today())
+    prices = load_prices(symbols, max_lookback_years, config['price_data'], datetime.date.today(), config)
     market_prices = load_market_prices(prices, datetime.date.today())
     mkt_caps = load_mkt_caps(symbols, datetime.date.today())
     return prices, market_prices, mkt_caps, symbols, config
@@ -171,7 +171,7 @@ def kelly_optimize(M_df, C_df, config):
 def max_quad_utility_weights(rets_bl, covar_bl, config):
     print('Begin max quadratic utility optimization')
     returns, sigmas, weights, deltas = [],[],[],[]
-    for delta in np.arange(1,25,1):
+    for delta in np.arange(1,10,1):
         ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
                 (config['min_position_size'] ,config['max_position_size']))
         ef.max_quadratic_utility(delta)
@@ -188,7 +188,6 @@ def max_quad_utility_weights(rets_bl, covar_bl, config):
     plt.xlabel('Volatility (%) ')
     plt.ylabel('Returns (%)')
     plt.title('Efficient Frontier for Max Quadratic Utility Optimization')
-    plt.legend('CHOOSE THE POINT ON THE EFFICIENT FRONTIER AND ENTER IT INTO THE TERMINAL')
     plt.show()
     opt_delta = float(input('Enter the desired point on the efficient frontier: ') )
     ef = EfficientFrontier(rets_bl, covar_bl, weight_bounds= \
@@ -292,6 +291,5 @@ def main():
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument('-c', '--config_path', action="store")
-    PARSER.add_argument('-d', '--price_data', action="store")
     OPTIONS = PARSER.parse_args()
     main()

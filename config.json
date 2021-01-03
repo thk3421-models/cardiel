@@ -3,6 +3,7 @@
     "annual_risk_free_rate": 0.008,
     "max_position_size": 0.35,
     "min_position_size": 0.0,
+    "price_data": "sample_data.csv",
     "views": {
             "BABA":[-0.10, 0.10, 0.20],
             "NVDA":[-0.10, 0.10, 0.30],
