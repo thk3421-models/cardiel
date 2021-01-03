@@ -3,6 +3,7 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import statsmodels.stats.moment_helpers as mh
 import sys
 import json
 import yfinance
@@ -94,8 +95,11 @@ def calc_omega(config, symbols):
 def plot_black_litterman_results(ret_bl, covar_bl, market_prior, mu):
     rets_df = pd.DataFrame([market_prior, ret_bl, pd.Series(mu)],
                            index=["Prior", "Posterior", "Views"]).T
-    rets_df.plot.bar(figsize=(12,8));
-    plotting.plot_covariance(covar_bl, plot_correlation=True);
+    rets_df.plot.bar(figsize=(12,8), title='Black-Litterman Expected Returns');
+    plot_heatmap(covar_bl, 'Black-Litterman Covariance', '', '')
+    corr_bl = mh.cov2corr(covar_bl)
+    corr_bl = pd.DataFrame(corr_bl, index=covar_bl.index, columns=covar_bl.columns)
+    plot_heatmap(corr_bl, 'Black-Litterman Correlation', '', '')
 
 def load_mean_views(views, symbols):
     mu = {}
@@ -231,6 +235,27 @@ def cla_min_vol_weights(rets_bl, covar_bl, config):
     weights.columns=['CLA Min Vol']
     return weights, cla
 
+def plot_heatmap(df, title, xlabel, ylabel):
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.25, left=0.25)
+    heatmap = ax.pcolor(df, edgecolors='w', linewidths=1)
+    cbar = plt.colorbar(heatmap)
+    ax.set_xticks(np.arange(df.shape[1]) + 0.5, minor=False)
+    ax.set_yticks(np.arange(df.shape[0]) + 0.5, minor=False)
+    ax.set_xticklabels(df.columns) #, rotation=45)
+    ax.set_yticklabels(df.index)
+
+    for y, idx in enumerate(df.index):
+        for x, col in enumerate(df.columns):
+            plt.text(x + 0.5, y + 0.5, '%.2f' % df.loc[idx, col], \
+                     horizontalalignment='center', verticalalignment='center',)
+
+    plt.gca().invert_yaxis()
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.show()
+
 def main():
     prices, market_prices, mkt_caps, symbols, config = load_data()
 
@@ -261,25 +286,7 @@ def main():
     weights_df = pd.merge(weights_df, cla_min_vol_w, left_index=True, right_index=True) 
     weights_df.to_csv('portfolio_weight_results.csv')
     
-    fig, ax = plt.subplots()
-    fig.subplots_adjust(bottom=0.25, left=0.25)
-    heatmap = ax.pcolor(weights_df, edgecolors='w', linewidths=1)
-    cbar = plt.colorbar(heatmap)
-    ax.set_xticks(np.arange(weights_df.shape[1]) + 0.5, minor=False)
-    ax.set_yticks(np.arange(weights_df.shape[0]) + 0.5, minor=False)
-    ax.set_xticklabels(weights_df.columns) #, rotation=45)
-    ax.set_yticklabels(weights_df.index)
-
-    for y, idx in enumerate(weights_df.index):
-        for x, col in enumerate(weights_df.columns):
-            plt.text(x + 0.5, y + 0.5, '%.2f' % weights_df.loc[idx, col], \
-                     horizontalalignment='center', verticalalignment='center',)
-
-    plt.gca().invert_yaxis()
-    plt.xlabel('Optimization Method')
-    plt.ylabel('Security')
-    plt.title('Portfolio Weighting (%)')
-    plt.show()
+    plot_heatmap(weights_df, 'Portfolio Weighting (%)','Optimization Method', 'Security')
 
 
 if __name__ == '__main__':
