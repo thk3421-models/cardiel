@@ -57,7 +57,7 @@ One may wish to repeat the above process several times if they are unhappy with 
 Several optimization routines are automatically run (see details in the portfolio optimization methodology section of this document).  **Most of them require no further input from the user**, however the most commonly used optimization is a Markowitz mean-variance optimization  that requires the user to choose a level of risk-aversion.   This is handled by viewing the [efficient frontier](https://en.wikipedia.org/wiki/Efficient_frontier), which is the expected return for an optimal portfolio for a given amount of risk (volatility). The risk aversion parameter is varied, which creates the full curve.  **The user is required to choose a point on the efficient frontier and enter the corresponding number into the terminal.**  
 For example:
 ![](/example_images/EF_max_quad_util.png)
-The user seeing the efficient frontier in the chart above may think "I'm okay with 24% volatility for a 10% expected return, so I choose point number 2." Now enter that number into the terminal:
+The user seeing the efficient frontier in the chart above may think "I'm okay with 24% volatility for a 10.5% expected return, so I choose point number 2." Now enter that number into the terminal:
 
 ![](/example_images/choose_pt.png)
 
