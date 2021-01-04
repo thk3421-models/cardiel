@@ -1,16 +1,3 @@
-<script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
-        
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-        inlineMath: [['$','$']]
-      }
-    });
-  </script>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
-        
 # [Cardiel](https://thk3421-models.github.io/cardiel/)
 Thomas Kirschenmann  
 thk3421@gmail.com
@@ -45,7 +32,7 @@ The "views" field is where the user can entry their views on individual securiti
 </pre>
 into their config.json file.  Continue likewise to enter views on all securities in the portfolio.  A strong argument can be made that if a portfolio manager does not hold any view whatsoever on a security, then it does not belong in their portfolio!  Of course, if no view is held, then an uninformed prior can be entered by using a very large range for the bounds and the historical data will simply dominate the view for that security.
 
-## Step 3: Run the script!
+## Step 3: Run the script and review the Black-Litterman results
 From a terminal, simply run: 
 <pre>
         python main.py --config config.json
@@ -56,15 +43,18 @@ Similarly, the Black-Litterman model covariance and correlations matrices are pr
 ![](/example_images/BL_Cov.png)
 ![](/example_images/BL_corr.png)
 
+### Cache Results ###
+One may wish to repeat this section if they are unhappy with their resulting BL returns and covariances.  The Yahoo! query results are automatically cached in local directory, /cachedir, after being received on a given day so if the program is re-run on the same day with the same set of assets, then cached result will be used.  This will speed up the query time and allow for quicker iteration and data exploration.
+
 ## Step 4:  Choose a level of risk-aversion
 Several optimization routines are automatically run (see details in the portfolio optimization methodology section of this document).  **Most of them require no further input from the user**, however the most commonly used optimization is a Markowitz mean-variance optimization  that requires the user to choose a level of risk-aversion.   This is handled by viewing the [efficient frontier](https://en.wikipedia.org/wiki/Efficient_frontier), which is the expected return for an optimal portfolio for a given amount of risk (volatility). The risk aversion parameter is varied, which creates the full curve.  **The user is required to choose a point on the efficient frontier and enter the corresponding number into the terminal.**  
 For example:
 ![](/example_images/EF_max_quad_util.png)
-the user seeing the efficient frontier in the chart above may think "I'm okay with 24% volatility for a 10% expected return, so I choose point number 2."
+The user seeing the efficient frontier in the chart above may think "I'm okay with 24% volatility for a 10% expected return, so I choose point number 2." Now enter that number into the terminal:
 ![](/example_images/choose_pt.png)
 
 ## Step 5: Compare the portfolio allocations
-The tool reports the portfolio allocation weight for each security, using several different optimization schemes. Currently the portfolio optimizations used are:
+The tool reports the portfolio allocation weight for each security, using several different optimization schemes.  The portfolio optimizations are all foreced to obey the constraints specified in the config file.  The portfolio optimizations are:
 <ul>
         <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion).  Full details of my implementation are discussed here: [thk3421-models.github.io/KellyPortfolio/](https://thk3421-models.github.io/KellyPortfolio/) </li>
         <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  [Markowitz Model](https://en.wikipedia.org/wiki/Markowitz_model#Choosing_the_best_portfolio) </li>
@@ -77,5 +67,7 @@ The various results should be compared using the final chart produced.
 
 ![](/example_images/Portfolio_Weights.png)
 
-These weights are automatically saved to a local CSV file too.
+This chart is the primary result and purpose of this tool: comparison of optimal portfolio allocations using a variety of methods, all based on the user-provided views that are married to historical data in a Bayesian way through the Black-Litterman model.  The weights are automatically saved to a local CSV file as well.  The user can now look for patterns in the assets and determine if they prefer to increase or decrease a particular holding, whether to reduce expected volatility or to increase potential returns.  
+
+Hope someone finds this useful or interesting!  Best wishes, warmest regards!
 
