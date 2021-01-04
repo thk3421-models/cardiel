@@ -73,7 +73,9 @@ The tool reports the portfolio allocation weight for each security, using severa
         <li> Critical Line Algorithm - Maximum Sharpe Ratio: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
         <li> Critical Line Algorithm - Minimum Volatility: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
 </ul>
-The various results should be compared using the final chart produced:
+The various results should be compared using the final chart produced.
+
 ![](/example_images/Portfolio_Weights.png)
+
 These weights are automatically saved to a local CSV file too.
 
