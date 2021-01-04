@@ -67,5 +67,13 @@ the user seeing the efficient frontier in the chart above may think "I'm okay wi
 The tool reports the portfolio allocation weight for each security, using several different optimization schemes. Currently the portfolio optimizations used are:
 <ul>
         <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion).  Full details of my implementation are discussed here: [thk3421-models.github.io/KellyPortfolio/](https://thk3421-models.github.io/KellyPortfolio/) </li>
-        <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  $$ \max_w w^T \mu - \frac \delta 2 w^T \Sigma w $$, see [Markowitz Model](https://en.wikipedia.org/wiki/Markowitz_model#Choosing_the_best_portfolio) </li>
+        <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  [Markowitz Model](https://en.wikipedia.org/wiki/Markowitz_model#Choosing_the_best_portfolio) </li>
+        <li> Maximum Sharpe Ratio: [also known as the Tangency portfolio](http://comisef.wikidot.com/tutorial:tangencyportfolio) </li>
+        <li> Minimum Volatility: Portfolio that minimizes the total portfolio volatility </li>
+        <li> Critical Line Algorithm - Maximum Sharpe Ratio: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
+        <li> Critical Line Algorithm - Minimum Volatility: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
 </ul>
+The various results should be compared using the final chart produced:
+![](/example_images/Portfolio_Weights.png)
+These weights are automatically saved to a local CSV file too.
+
