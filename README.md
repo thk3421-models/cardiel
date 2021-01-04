@@ -1,4 +1,4 @@
-# [Cardiel](https://thk3421-models.github.io/cardiel/)
+# [Cardiel - A portfolio allocation tool based on Black-Litterman](https://thk3421-models.github.io/cardiel/)
 Thomas Kirschenmann  
 thk3421@gmail.com
 
@@ -24,7 +24,7 @@ The example file in the repo contains the necessary fields:
         <li> price_data            -- set this string to "yahoo" to automatically query Yahoo! Finance or provide a path to a CSV file to use proprietary data </li>
         <li> views                 -- See the note below
 </ul>
-The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided estimated annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes AAPL stock is going to have a one-year return of 10% with a lower range forecast of -10% and upper bound forecast of 30%, then enter: 
+The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided estimated annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes AAPL stock is going to have a one-year return of 10% with a lower range forecast of -10% and upper bound forecast of 30%.  And perhaps they have a more bearish belief in  then enter: 
 <pre>
 "views":{
         "AAPL":[-0.10, 0.10, 0.20] 
@@ -69,5 +69,8 @@ The various results should be compared using the final chart produced.
 
 This chart is the primary result and purpose of this tool: comparison of optimal portfolio allocations using a variety of methods, all based on the user-provided views that are married to historical data in a Bayesian way through the Black-Litterman model.  The weights are automatically saved to a local CSV file as well.  The user can now look for patterns in the assets and determine if they prefer to increase or decrease a particular holding, whether to reduce expected volatility or to increase potential returns.  
 
-Hope someone finds this useful or interesting!  Best wishes, warmest regards!
+Hope someone finds this useful or interesting! Please send me a note if you want me to add more output or a custom feature! 
+
+[Best wishes, warmest regards!](https://en.wikipedia.org/wiki/Schitt%27s_Creek)
+
 
