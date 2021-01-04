@@ -50,8 +50,8 @@ Similarly, the Black-Litterman model covariance and correlations matrices are pr
 ![](/example_images/BL_Cov.png)
 ![](/example_images/BL_corr.png)
 
-### Cache Results ###
-One may wish to repeat this section if they are unhappy with their resulting BL returns and covariances.  The Yahoo! query results are automatically cached in local directory, /cachedir, after being received on a given day so if the program is re-run on the same day with the same set of assets, then cached result will be used.  This will speed up the query time and allow for quicker iteration and data exploration.
+### Cached Results ###
+One may wish to repeat the above process several times if they are unhappy with the resulting BL returns and covariances.  The Yahoo! query results are automatically cached in local directory, /cachedir, after being received on a given day.  If the program is re-run on the same day with the same set of assets, then cached result will be used.  This will speed up the program by skipping the Yahoo! query and allow for quicker iteration and data exploration.
 
 ## Step 4:  Choose a level of risk-aversion
 Several optimization routines are automatically run (see details in the portfolio optimization methodology section of this document).  **Most of them require no further input from the user**, however the most commonly used optimization is a Markowitz mean-variance optimization  that requires the user to choose a level of risk-aversion.   This is handled by viewing the [efficient frontier](https://en.wikipedia.org/wiki/Efficient_frontier), which is the expected return for an optimal portfolio for a given amount of risk (volatility). The risk aversion parameter is varied, which creates the full curve.  **The user is required to choose a point on the efficient frontier and enter the corresponding number into the terminal.**  
