@@ -71,11 +71,11 @@ The tool reports the portfolio allocation weight for each security, using severa
         <li> Critical Line Algorithm - Maximum Sharpe Ratio: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
         <li> Critical Line Algorithm - Minimum Volatility: [Critical Line Method](https://en.wikipedia.org/wiki/Portfolio_optimization#Specific_approaches) </li>
 </ul>
-The various results should be compared using the final chart produced.
+The various results should now be compared using the final chart produced.  This is the main purpose of the tool, to get a feel for the portfolio weights recommended by a variety of algorithms:
 
 ![](/example_images/Portfolio_Weights.png)
 
-This chart is the primary result and purpose of this tool: comparison of optimal portfolio allocations using a variety of methods, all based on the user-provided views that are married to historical data in a Bayesian way through the Black-Litterman model.  The weights are automatically saved to a local CSV file as well.  The user can now look for patterns in the assets and determine if they prefer to increase or decrease a particular holding, whether to reduce expected volatility or to increase potential returns.  
+The goal is now achieved: comparison of optimal portfolio allocations using a variety of methods, all based on the user-provided views that are married to historical data in a Bayesian way through the Black-Litterman model.  The weights are automatically saved to a local CSV file as well.  The user can now look for patterns in the assets and determine if they prefer to increase or decrease a particular holding in order to either reduce expected volatility or to increase potential returns.  
 
 Hope someone finds this useful or interesting! Please send me a note if you want me to add more output or a custom feature! 
 
