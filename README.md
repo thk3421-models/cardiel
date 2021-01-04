@@ -1,6 +1,16 @@
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_CHTML"></script>
         
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      }
+    });
+  </script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+        
 # [Cardiel](https://thk3421-models.github.io/cardiel/)
 Thomas Kirschenmann  
 thk3421@gmail.com
@@ -56,6 +66,6 @@ the user seeing the efficient frontier in the chart above may think "I'm okay wi
 ## Step 5: Compare the portfolio allocations
 The tool reports the portfolio allocation weight for each security, using several different optimization schemes. Currently the portfolio optimizations used are:
 <ul>
-        <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion).  Full details of my implementation are discussed here: [https://thk3421-models.github.io/KellyPortfolio/](https://thk3421-models.github.io/KellyPortfolio/) </li>
+        <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion).  Full details of my implementation are discussed here: [thk3421-models.github.io/KellyPortfolio/](https://thk3421-models.github.io/KellyPortfolio/) </li>
         <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  $$ \max_w w^T \mu - \frac \delta 2 w^T \Sigma w $$, see [Markowitz Model](https://en.wikipedia.org/wiki/Markowitz_model#Choosing_the_best_portfolio) </li>
 </ul>
