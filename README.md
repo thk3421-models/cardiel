@@ -41,7 +41,7 @@ From a terminal, simply run:
         python main.py --config config.json
 </pre>
 and the program will load the daily adjusted close prices and compute the Black-Litterman return vector and covariance matrices.  These will be automatically plotted and displayed for validation purposes.  An example summary comparing the views, historical returns, and posterior returns looks like:
-![]({{/example_images/BL_returns.png)
+![](/example_images/BL_returns.png)
 Similarly, the Black-Litterman model covariance and correlations matrices are provided:
 ![](/example_images/BL_Cov.png)
 ![](/example_images/BL_corr.png)
@@ -51,7 +51,7 @@ Several optimization routines are automatically run (see details in the portfoli
 For example:
 ![](/example_images/EF_max_quad_util.png)
 the user seeing the efficient frontier in the chart above may think "I'm okay with 24% volatility for a 10% expected return, so I choose point number 2."
-![](example_images/choose_pt.png)
+![](/example_images/choose_pt.png)
 
 ## Step 5: Compare the portfolio allocations
 The tool reports the portfolio allocation weight for each security, using several different optimization schemes. Currently the portfolio optimizations used are:
