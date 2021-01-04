@@ -56,6 +56,6 @@ the user seeing the efficient frontier in the chart above may think "I'm okay wi
 ## Step 5: Compare the portfolio allocations
 The tool reports the portfolio allocation weight for each security, using several different optimization schemes. Currently the portfolio optimizations used are:
 <ul>
-        <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion#Many_assets).  Full details of my implementation are discussed here: https://thk3421-models.github.io/KellyPortfolio/ </li>
-        <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  $$ \max_w w^T \mu - \frac \delta 2 w^T \Sigma w $$ </li>
+        <li> Kelly Criterion: [Kelly objective function](https://en.wikipedia.org/wiki/Kelly_criterion).  Full details of my implementation are discussed here: [https://thk3421-models.github.io/KellyPortfolio/](https://thk3421-models.github.io/KellyPortfolio/) </li>
+        <li> Markowitz Mean-Variance with Maximum Quadratic Utility:  $$ \max_w w^T \mu - \frac \delta 2 w^T \Sigma w $$, see [Markowitz Model](https://en.wikipedia.org/wiki/Markowitz_model#Choosing_the_best_portfolio) </li>
 </ul>
