@@ -10,9 +10,9 @@ The BL return vector and covariance matrix serve as inputs to any standard portf
 
 # Steps for Using This Tool to Produce Portfolio Allocation Weights 
 ## Step 1: Pip install the required python libraries:
-<ul>
-        <li> pip install argparse matplotlib numpy pandas statsmodels yfinance cvxopt joblib pypfopt </li>
-</ul>
+<pre>
+pip install argparse matplotlib numpy pandas statsmodels yfinance cvxopt joblib pypfopt
+</pre>
 
 ## Step 2: Adjust the included config.json file to your situation.  
 The example file in the repo contains the necessary fields:  
@@ -24,10 +24,17 @@ The example file in the repo contains the necessary fields:
         <li> price_data            -- set this string to "yahoo" to automatically query Yahoo! Finance or provide a path to a CSV file to use proprietary data </li>
         <li> views                 -- See the note below
 </ul>
-The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided estimated annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes AAPL stock is going to have a one-year return of 10% with a lower range forecast of -10% and upper bound forecast of 30%.  And perhaps they have a more bearish belief in  then enter: 
+The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided estimated annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes BABA stock is going to have a one-year return of 10% with a lower range forecast of -10% and upper bound forecast of 30% they can enter: "BABA":[-0.10, 0.10, 0.20]. Similarly, the user should repeat this process and enter their views for each asset of interest. A hypothetical example would be: 
 <pre>
 "views":{
-        "AAPL":[-0.10, 0.10, 0.20] 
+            "BABA":[-0.10, 0.10, 0.20],
+            "NVDA":[-0.10, 0.10, 0.30],
+            "DIS":[-0.10, 0.07, 0.15],
+            "BA":[-0.05, 0.07, 0.15],
+            "XOM":[-0.05, 0.07, 0.15],
+            "FB":[-0.05, 0.07, 0.15],
+            "GOOG":[-0.05, 0.07, 0.15],
+            "BAC":[0.0, 0.10, 0.25] 
         }
 </pre>
 into their config.json file.  Continue likewise to enter views on all securities in the portfolio.  A strong argument can be made that if a portfolio manager does not hold any view whatsoever on a security, then it does not belong in their portfolio!  Of course, if no view is held, then an uninformed prior can be entered by using a very large range for the bounds and the historical data will simply dominate the view for that security.
