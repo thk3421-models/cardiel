@@ -79,6 +79,6 @@ This chart is the primary result and purpose of this tool: comparison of optimal
 
 Hope someone finds this useful or interesting! Please send me a note if you want me to add more output or a custom feature! 
 
-[Best wishes, warmest regards!](https://en.wikipedia.org/wiki/Schitt%27s_Creek)
+[Best wishes, warmest regards!](/example_images/john_cardiel.png)
 
 
