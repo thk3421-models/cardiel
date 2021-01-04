@@ -8,6 +8,8 @@ This script is a tool for portfolio managers to input their market forecasts usi
 This tool will query market data for any security supported by Yahoo! Finance and can also be used with proprietary data in a CSV file.  
 The BL return vector and covariance matrix serve as inputs to any standard portfolio optimization methodology, such as Markowitz mean-variance optimization under a variety of utility functions.  This tool calculates the optimal portfolio allocations using several methodologies and presents them simultaneously for side-by-side comparison, which helps guide a portfolio manager's decision to adjust the portfolio allocation.
 
+A large portion of this tool relies on a terrific library put together by Robert Martin called [PyPortfolioOpt](https://pyportfolioopt.readthedocs.io/en/latest/index.html) Tip o' the hat to Robert!
+
 ## Steps for Using This Tool to Produce Portfolio Allocation Weights 
 ## Step 1: Pip install the required python libraries:
 <pre>
