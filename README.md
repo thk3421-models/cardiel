@@ -39,7 +39,7 @@ The "views" field is where the user can entry their views on individual securiti
             "BAC":[0.0, 0.10, 0.25] 
         }
 </pre>
-A strong argument can be made that if a portfolio manager does not hold any view whatsoever on a security, then it does not belong in their portfolio!  Of course, if no view is held, then an uninformed prior can be entered by using a very large range for the bounds and the historical data will simply dominate the posterior for that security.
+An argument can be made that if a portfolio manager does not hold any view whatsoever on a security, then it does not belong in their portfolio!
 
 ## Step 3: Run the script and review the Black-Litterman results
 From a terminal, simply run: 
