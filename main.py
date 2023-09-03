@@ -62,18 +62,23 @@ def load_prices(symbols, max_lookback_years, data_source, curr_date, config):
 @memory.cache
 def load_mkt_caps(symbols, curr_date):
     print('loading market cap data')
-    mcaps = pd_data.get_quote_yahoo(symbols)['marketCap']
-    missing_mcap_symbols = mcaps[mcaps.isnull()].index
-    for symbol in missing_mcap_symbols:
-        print('attempting to find market cap info for', symbol)
+    mcaps = pd.DataFrame(columns=['MarketCap'])
+    #mcaps = pd_data.get_quote_yahoo(symbols)['marketCap']
+    #missing_mcap_symbols = mcaps[mcaps.isnull()].index
+    #for symbol in missing_mcap_symbols:
+    for symbol in symbols:
+        print('querying market cap info for', symbol)
         data = yfinance.Ticker(symbol)
         if data.info['quoteType'] == 'ETF' or data.info['quoteType'] == 'MUTUALFUND': 
             mcap = data.info['totalAssets']
             print('adding market cap info for', symbol)
-            mcaps.loc[symbol] = mcap
         else:
-            print('Failed to find market cap for', symbol)
-            sys.exit(-1)
+            mcap = data.info['marketCap']
+        mcaps.loc[symbol] = mcap
+        #else:
+        #    print('Failed to find market cap for', symbol)
+        #    sys.exit(-1)
+    #mcaps=mcaps.to_dict()['MarketCap']
     return mcaps
 
 @memory.cache
@@ -113,6 +118,7 @@ def load_data():
     prices = load_prices(symbols, max_lookback_years, config['price_data'], datetime.date.today(), config)
     market_prices = load_market_prices(prices, datetime.date.today())
     mkt_caps = load_mkt_caps(symbols, datetime.date.today())
+    mkt_caps = pd.Series(mkt_caps.to_dict()['MarketCap'])
     return prices, market_prices, mkt_caps, symbols, config
 
 def calc_black_litterman(market_prices, mkt_caps, covar, config, symbols):
