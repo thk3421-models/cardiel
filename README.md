@@ -26,10 +26,10 @@ The example file in the repo contains the necessary fields:
         <li> price_data            -- set this string to "yahoo" to automatically query Yahoo! Finance or provide a path to a CSV file to use proprietary data </li>
         <li> views                 -- See the note below
 </ul>
-The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided estimated annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes BABA stock is going to have a one-year return of 10% with a lower range forecast of -10% and upper bound forecast of 20% they can enter: "BABA":[-0.10, 0.10, 0.20]. Similarly, the user should repeat this process and enter their views for each asset of interest into their config.json file. A hypothetical example would be: 
+The "views" field is where the user can entry their views on individual securities in the form of 3 numbers per security.  The first number is the user-provided lower bound annual return for a 1 standard deviation downward move.  The second number is the user-provided expected annual return, and the third number is the upper bound for a 1 standard deviation upward move.  For example, if a user believes BABA stock is going to have a one-year return of 10% plus or minus 15% (i.e. with a lower range forecast of -5% and upper bound forecast of 25% they can enter: "BABA":[-0.05, 0.10, 0.25]. Similarly, the user should repeat this process and enter their views for each asset of interest into their config.json file. A hypothetical example would be: 
 <pre>
 "views":{
-            "BABA":[-0.10, 0.10, 0.20],
+            "BABA":[-0.05, 0.10, 0.25],
             "NVDA":[-0.10, 0.10, 0.30],
             "DIS":[-0.10, 0.07, 0.15],
             "BA":[-0.05, 0.07, 0.15],
